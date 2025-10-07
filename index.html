@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task Manager</title>
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #6c63ff;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .top-section {
+            background-color: #6c63ff;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .top-section h1 {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .add-task-section {
+            padding: 25px;
+            background-color: #f5f5f5;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #taskInput:focus {
+            outline: none;
+            border-color: #6c63ff;
+        }
+
+        .add-btn {
+            padding: 12px 25px;
+            background-color: #6c63ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background-color: #5548d9;
+        }
+
+        .filter-buttons {
+            padding: 15px 25px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .filter-btn.selected {
+            background-color: #6c63ff;
+            color: white;
+        }
+
+        .task-list {
+            padding: 25px;
+            min-height: 250px;
+        }
+
+        .single-task {
+            background-color: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .single-task:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .task-check {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-content {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .task-content.done {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-date {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .delete-btn {
+            padding: 8px 15px;
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .delete-btn:hover {
+            background-color: #e63939;
+        }
+
+        .no-tasks {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .no-tasks-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .bottom-stats {
+            padding: 20px 25px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: space-around;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 28px;
+            font-weight: bold;
+            color: #6c63ff;
+        }
+
+        .stat-text {
+            color: #666;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="top-section">
+            <h1>📝 Task Manager</h1>
+            <p>Keep track of your daily tasks</p>
+        </div>
+
+        <!-- Add Task Area -->
+        <div class="add-task-section">
+            <div class="input-area">
+                <input 
+                    type="text" 
+                    id="taskInput" 
+                    placeholder="Enter your task here..."
+                >
+                <button class="add-btn" onclick="addNewTask()">Add</button>
+            </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="filter-buttons">
+            <button class="filter-btn selected" onclick="showTasks('all')">All</button>
+            <button class="filter-btn" onclick="showTasks('active')">Active</button>
+            <button class="filter-btn" onclick="showTasks('completed')">Completed</button>
+        </div>
+
+        <!-- Task List -->
+        <div class="task-list" id="taskList">
+            <div class="no-tasks">
+                <div class="no-tasks-icon">📋</div>
+                <h3>No tasks yet</h3>
+                <p>Add your first task above</p>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="bottom-stats">
+            <div class="stat-box">
+                <div class="stat-num" id="totalCount">0</div>
+                <div class="stat-text">Total</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num" id="activeCount">0</div>
+                <div class="stat-text">Active</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num" id="doneCount">0</div>
+                <div class="stat-text">Done</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array to store all tasks
+        var allTasks = [];
+        var filterType = 'all';
+
+        // Add new task
+        function addNewTask() {
+            var input = document.getElementById('taskInput');
+            var text = input.value.trim();
+            
+            if (text === '') {
+                alert('Please enter a task');
+                return;
+            }
+            
+            // Create task object
+            var newTask = {
+                id: Date.now(),
+                text: text,
+                completed: false,
+                date: new Date().toLocaleString()
+            };
+            
+            allTasks.push(newTask);
+            input.value = '';
+            displayTasks();
+            updateNumbers();
+        }
+
+        // Check Enter key
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addNewTask();
+            }
+        });
+
+        // Mark task as complete/incomplete
+        function toggleComplete(id) {
+            for (var i = 0; i < allTasks.length; i++) {
+                if (allTasks[i].id === id) {
+                    allTasks[i].completed = !allTasks[i].completed;
+                    break;
+                }
+            }
+            displayTasks();
+            updateNumbers();
+        }
+
+        // Delete task
+        function removeTask(id) {
+            var newArray = [];
+            for (var i = 0; i < allTasks.length; i++) {
+                if (allTasks[i].id !== id) {
+                    newArray.push(allTasks[i]);
+                }
+            }
+            allTasks = newArray;
+            displayTasks();
+            updateNumbers();
+        }
+
+        // Filter tasks
+        function showTasks(type) {
+            filterType = type;
+            
+            // Update button styles
+            var buttons = document.querySelectorAll('.filter-btn');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('selected');
+            }
+            event.target.classList.add('selected');
+            
+            displayTasks();
+        }
+
+        // Display tasks on screen
+        function displayTasks() {
+            var container = document.getElementById('taskList');
+            var tasksToShow = [];
+            
+            // Filter based on type
+            for (var i = 0; i < allTasks.length; i++) {
+                if (filterType === 'all') {
+                    tasksToShow.push(allTasks[i]);
+                } else if (filterType === 'active' && !allTasks[i].completed) {
+                    tasksToShow.push(allTasks[i]);
+                } else if (filterType === 'completed' && allTasks[i].completed) {
+                    tasksToShow.push(allTasks[i]);
+                }
+            }
+            
+            // Show message if no tasks
+            if (tasksToShow.length === 0) {
+                var message = 'No tasks yet';
+                if (filterType === 'active') message = 'No active tasks';
+                if (filterType === 'completed') message = 'No completed tasks';
+                
+                container.innerHTML = '<div class="no-tasks"><div class="no-tasks-icon">📋</div><h3>' + message + '</h3></div>';
+                return;
+            }
+            
+            // Build HTML for tasks
+            var html = '';
+            for (var i = 0; i < tasksToShow.length; i++) {
+                var task = tasksToShow[i];
+                var checked = task.completed ? 'checked' : '';
+                var doneClass = task.completed ? 'done' : '';
+                
+                html += '<div class="single-task">';
+                html += '<input type="checkbox" class="task-check" ' + checked + ' onchange="toggleComplete(' + task.id + ')">';
+                html += '<div class="task-content ' + doneClass + '">' + task.text + '</div>';
+                html += '<div class="task-date">' + task.date + '</div>';
+                html += '<button class="delete-btn" onclick="removeTask(' + task.id + ')">Delete</button>';
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Update statistics
+        function updateNumbers() {
+            var total = allTasks.length;
+            var done = 0;
+            
+            for (var i = 0; i < allTasks.length; i++) {
+                if (allTasks[i].completed) {
+                    done++;
+                }
+            }
+            
+            var active = total - done;
+            
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('activeCount').textContent = active;
+            document.getElementById('doneCount').textContent = done;
+        }
+    </script>
+</body>
+</html>
